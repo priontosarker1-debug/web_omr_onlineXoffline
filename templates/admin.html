@@ -22,8 +22,17 @@
         </form>
     </div>
 
-    <div class="card">
-        <h3>Live Exam Results</h3>
+    </div> <div class="card">
+        <h3>Exam Configuration (Question & Timer)</h3>
+        <form action="/set_exam_config" method="POST">
+            <input type="text" name="question_url" placeholder="Paste Question Link (Google Drive/Imgur)" style="width: 70%; padding: 10px;">
+            <input type="number" name="duration" placeholder="Minutes" style="width: 20%; padding: 10px;">
+            <button type="submit" style="background: #3498db; color: white; padding: 10px; border: none; border-radius: 5px;">Update Exam</button>
+        </form>
+    </div>
+
+   <div class="card">
+    <h3>Live Exam Results</h3>
         <table>
             <tr>
                 <th>UID</th><th>Name</th><th>Roll</th><th>Score</th><th>IP Address</th>

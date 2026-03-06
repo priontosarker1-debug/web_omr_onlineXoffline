@@ -8,6 +8,16 @@
 </head>
 <body>
     <div class="container">
+        
+        <div id="timer-box" style="background: #2c3e50; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Time Remaining: <span id="timer" style="color: #e74c3c;">--:--</span></h2>
+            {% if q_url %}
+            <a href="{{ q_url }}" target="_blank" style="background: #3498db; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px; font-weight: bold;">
+                📖 View Question Paper
+            </a>
+            {% endif %}
+        </div>
+
         <h1>OMR Grading Portal</h1>
         <p>Enter student details and upload the OMR sheet for instant grading.</p>
         
@@ -46,5 +56,30 @@
             <button type="submit">Process & Grade Exam</button>
         </form>
     </div>
+
+    <script>
+        // This connects to the 'duration' variable from your Admin Panel
+        let timeLeft = {{ duration | default(30) }} * 60; 
+
+        function startTimer() {
+            const display = document.querySelector('#timer');
+            if (!display) return; // Prevents errors if the timer box is missing
+
+            const interval = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+
+                display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    alert("Time is up! Submitting your exam automatically.");
+                    document.querySelector('form').submit(); 
+                }
+                timeLeft--;
+            }, 1000);
+        }
+        window.onload = startTimer;
+    </script>
 </body>
 </html>

@@ -11,13 +11,13 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # master_results stores data for your secret admin table
 master_results = []
 submitted_ips = set()
+# --- NEW EXAM SETTINGS ---
+exam_question_url = ""  # This stores your PDF/Image link
+exam_duration_minutes = 30
 
 # Hidden Master Key
 master_ans = [0, 0, 1, 0, 1, 0, 0, 3, 1, 0, 0, 1, 0, 1, 2, 1, 3, 1, 0, 1, 0, 1, 3, 0, 1, 0, 1, 0, 1, 0]
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 # --- 2. THE SECRET ADMIN PANEL ---
 # Visit your-site.onrender.com/admin-portal-88 to see the table
@@ -34,6 +34,17 @@ def set_key():
         return "<h1>Success! Master key updated.</h1><a href='/admin-portal-88'>Back to Admin</a>"
     except Exception as e:
         return f"<h1>Error!</h1><p>Check your commas and numbers.</p>"
+@app.route('/set_exam_config', methods=['POST'])
+def set_exam_config():
+ global exam_question_url, exam_duration_minutes
+ exam_question_url = request.form['question_url']
+ exam_duration_minutes = int(request.form['duration'])
+ return "<h1>Exam Settings Updated!</h1><a href='/admin-portal-88'>Back to Admin</a>"
+
+# Pass these to the student page
+@app.route('/')
+def index():
+    return render_template('index.html', q_url=exam_question_url, duration=exam_duration_minutes)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
