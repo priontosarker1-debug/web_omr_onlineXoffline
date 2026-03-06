@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OMR Admin Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f7f6; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #3498db; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Admin Control Center</h1>
+    
+    <div class="card">
+        <h3>Update Answer Key</h3>
+        <form action="/set_key" method="POST">
+            <input type="text" name="master_key" style="width: 80%; padding: 10px;" placeholder="0,1,2,0,3...">
+            <button type="submit" style="padding: 10px 20px; background: #27ae60; color: white; border: none; cursor: pointer;">Save Key</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Live Exam Results</h3>
+        <table>
+            <tr>
+                <th>UID</th><th>Name</th><th>Roll</th><th>Score</th><th>IP Address</th>
+            </tr>
+            {% for row in results %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
