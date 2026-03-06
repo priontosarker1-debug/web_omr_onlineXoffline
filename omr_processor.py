@@ -3,13 +3,12 @@ import numpy as np
 import utlis
 import os
 
-def grade_sheet(image_path, output_path,ans):
+def grade_sheet(image_path, output_path, ans):
     # Standard settings from your OMR_Main
     widthImg = 700
     heightImg = 1650
     questions = 30
     choices = 4
-    #ans = [0, 0, 1, 0, 1, 0, 0, 3, 1, 0, 0, 1, 0, 1, 2, 1, 3, 1, 0, 1, 0, 1, 3, 0, 1, 0, 1, 0, 1, 0]
 
     img = cv2.imread(image_path)
     img = cv2.resize(img, (widthImg, heightImg))
@@ -45,7 +44,7 @@ def grade_sheet(image_path, output_path,ans):
     imgWarpGray = cv2.cvtColor(imgWarpColoured, cv2.COLOR_BGR2GRAY)
     imgThresh = cv2.threshold(imgWarpGray, 170, 255, cv2.THRESH_BINARY_INV)[1]
 
-    # Cropping Logic (Using your exact decimals)
+    # Cropping Logic
     h, w = imgThresh.shape
     start_y, end_y = int(h * 0.03), int(h * 0.98)
     start_x, end_x = int(w * 0.21), int(w * 0.95)
@@ -64,14 +63,52 @@ def grade_sheet(image_path, output_path,ans):
             countR += 1
             countC = 0
 
+  
+   # --- NEW STRICT NEGATIVE MARKING LOGIC START ---
     myIndex = []
+    grading = []
+    raw_score = 0.0  # Tracks points before converting to a percentage
+    THRESHOLD = 2000  # Adjust this if needed!
+
     for x in range(questions):
         arr = myPixelval[x]
+        
+        # 1. Find the darkest bubble (Keeps the drawing utility working)
         myIndexVal = np.where(arr == np.amax(arr))
-        myIndex.append(myIndexVal[0][0])
+        darkest_bubble = myIndexVal[0][0]
+        myIndex.append(darkest_bubble)
+        
+        # 2. Check how many bubbles actually cross the filled threshold
+        filled_bubbles = np.where(arr > THRESHOLD)[0]
+        
+        # 3. True Negative Marking Rules
+        if len(filled_bubbles) == 0:
+            # Blank: No penalty, no points
+            grading.append(0)
+            raw_score += 0.0
+            
+        elif len(filled_bubbles) > 1:
+            # Double-bubbled: Penalty!
+            grading.append(0)
+            raw_score -= 0.25
+            
+        elif len(filled_bubbles) == 1:
+            if filled_bubbles[0] == ans[x]:
+                # Correct: Full points!
+                grading.append(1)
+                raw_score += 1.0
+            else:
+                # Wrong: Penalty!
+                grading.append(0)
+                raw_score -= 0.25
 
-    grading = [1 if ans[x] == myIndex[x] else 0 for x in range(questions)]
-    score = (sum(grading) / questions) * 100
+    # Prevent the total score from dropping below zero
+    raw_score = max(0, raw_score)
+
+    # Calculate final score percentage
+    score = (raw_score / questions) * 100
+    # --- NEW STRICT NEGATIVE MARKING LOGIC END ---
+    
 
     # Drawing results
     imgRawDrawing = np.zeros_like(imgWarpColoured)
